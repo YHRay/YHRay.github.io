@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>滑动窗口算法</title>
+    <url>/2021/07/27/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<h1 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h1><blockquote>
+<p>话不多说，直接上题。<br>给一个字符串S、一个字符串T，请在字符串S里面找出：包含T所有字母的最小字串。</p>
+</blockquote>
+<p><strong>示例</strong></p>
+<blockquote>
+<p>输入：S = “ABOBECODEBANC”，T = “ABC” 输出：“BANC”</p>
+</blockquote>
+<span id="more"></span>
+
+<p>滑动窗口的思路：</p>
+<ol>
+<li>在字符串S中使用双指针中的左右指针技巧，初始化 left = right = 0,把索引左闭右开区间[left，right）称为一个窗口。</li>
+<li>先不断的增加right指针扩大窗口[left,right)，直到窗口中的字符串符合要求（包含了T中的所有字符）。</li>
+<li>此时，停止增加right，转而不断增加left指针缩小窗口[left,right)，直到窗口中的字符串不再符合要求（不包含T中的所有字符了）。同时，每次增加left，都要更新一轮结果。</li>
+<li>重复第 2 和 第 3 步，直到right达到字符串S的尽头。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SlidingWindow</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">minWindow</span><span class="params">(String s, String t)</span> </span>&#123;</span><br><span class="line">        Map&lt;Character, Integer&gt; need = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        Map&lt;Character, Integer&gt; window = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> left = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> right = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> valid = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 如果一个字符进入窗口，应该增加window计数器；</span></span><br><span class="line"><span class="comment">         * 如果一个字符移出窗口的时候，应该减少window计数器；</span></span><br><span class="line"><span class="comment">         * 当valid满足need时，应该收缩窗口；</span></span><br><span class="line"><span class="comment">         * 收缩窗口当时候更新最终结果。</span></span><br><span class="line"><span class="comment">         * */</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">char</span> c : t.toCharArray()) &#123;</span><br><span class="line">            need.put(c, need.getOrDefault(c, <span class="number">0</span>) + <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//记录最小覆盖字串当起始索引和长度</span></span><br><span class="line">        <span class="keyword">int</span> start = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> len = Integer.MAX_VALUE;</span><br><span class="line">        <span class="keyword">char</span>[] m = s.toCharArray();</span><br><span class="line">        <span class="comment">//终止条件</span></span><br><span class="line">        <span class="keyword">while</span> (right &lt; m.length) &#123;</span><br><span class="line">            <span class="comment">//c 是移入窗口的字符</span></span><br><span class="line">            <span class="keyword">char</span> c = m[right];</span><br><span class="line">            <span class="comment">//右移窗口</span></span><br><span class="line">            right++;</span><br><span class="line">            <span class="comment">//对窗口内数据的一系列更新</span></span><br><span class="line">            <span class="keyword">if</span> (need.containsKey(c)) &#123;</span><br><span class="line">                window.put(c, window.getOrDefault(c, <span class="number">0</span>) + <span class="number">1</span>);</span><br><span class="line">                <span class="keyword">if</span> (window.get(c).equals(need.get(c))) &#123;</span><br><span class="line">                    valid++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//判断窗口是否要收缩</span></span><br><span class="line">            <span class="keyword">while</span> (valid == need.size()) &#123;</span><br><span class="line">                <span class="comment">//更新最小覆盖字串</span></span><br><span class="line">                <span class="keyword">if</span> (right - left &lt; len) &#123;</span><br><span class="line">                    start = left;</span><br><span class="line">                    len = right - left;<span class="comment">//字串长度</span></span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//d 是移出窗口的字符</span></span><br><span class="line">                <span class="keyword">char</span> d = m[left];</span><br><span class="line">                <span class="comment">//窗口左移</span></span><br><span class="line">                left++;</span><br><span class="line">                <span class="comment">//对窗口内数据的一系列更新</span></span><br><span class="line">                <span class="keyword">if</span> (need.containsKey(d)) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (window.get(d) &gt;= need.get(d)) &#123;</span><br><span class="line">                        <span class="keyword">if</span>(window.get(d) == need.get(d))&#123;</span><br><span class="line">                            valid--;</span><br><span class="line">                        &#125;</span><br><span class="line">                        window.put(d, window.getOrDefault(d, <span class="number">0</span>) - <span class="number">1</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> len == Integer.MAX_VALUE ? <span class="string">&quot;&quot;</span> : s.substring(start, start+len);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        String s = <span class="string">&quot;ADOBECODEBANC&quot;</span>;</span><br><span class="line">        String t = <span class="string">&quot;ABC&quot;</span>;</span><br><span class="line">        String str = minWindow(s,t);</span><br><span class="line">        System.out.println(<span class="string">&quot;输出：&quot;</span>+str);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>交替打印</title>
+    <url>/2021/07/22/%E7%AC%AC%E4%B8%89%E7%AF%87%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<h1 id="交替打印数字和字母"><a href="#交替打印数字和字母" class="headerlink" title="交替打印数字和字母"></a>交替打印数字和字母</h1><blockquote>
+<p>两个线程交替打印数字和字母，例如1a2b3c4d。</p>
+</blockquote>
+<span id="more"></span>
+
+<blockquote>
+<p><strong>实现方式</strong></p>
+<ul>
+<li>synchronized提供的wait、notify</li>
+<li>lockSupport的park、unpark</li>
+<li>reentrantLock和condition</li>
+<li>基于cas机制实现线程交替打印</li>
+<li>transferQueue实现</li>
+</ul>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">每个condition内部有一个队列，c1队列里有t1，c2队列里有t2，线程使用await释放锁，使用signal唤醒锁。</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">char</span>[] nums = <span class="string">&quot;123456789&quot;</span>.toCharArray();</span><br><span class="line">        <span class="keyword">char</span>[] chars = <span class="string">&quot;abcdefghi&quot;</span>.toCharArray();</span><br><span class="line"></span><br><span class="line">        ReentrantLock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">        Condition c1 = lock.newCondition();</span><br><span class="line">        Condition c2 = lock.newCondition();</span><br><span class="line"></span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(()-&gt; &#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">char</span> temp : nums) &#123;</span><br><span class="line">                    System.out.print(temp);</span><br><span class="line">                    c2.signal();</span><br><span class="line">                    c1.await();</span><br><span class="line">                &#125;</span><br><span class="line">                c2.signal();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        Thread t2 = <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">char</span> temp : chars) &#123;</span><br><span class="line">                    System.out.print(temp);</span><br><span class="line">                    c1.signal();</span><br><span class="line">                    c2.await();</span><br><span class="line">                &#125;</span><br><span class="line">                c1.signal();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>编程</category>
+      </categories>
+      <tags>
+        <tag>Java，多线程，算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>markdown语法</title>
+    <url>/2021/07/21/%E7%AC%AC%E4%BA%8C%E7%AF%87%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<h1 id="markdown语法"><a href="#markdown语法" class="headerlink" title="markdown语法"></a>markdown语法</h1><span id="more"></span>
+
+<blockquote>
+<p># 一级标题<br>## 二级标题<br>### 三级标题<br>#### 四级标题<br>##### 五级标题<br>这是第一个段落，你懂的，段落的内容是我自己写的；<br>这是第二个段落，你没猜错，还是我写的；<br>没错第三个段落，是想展示嵌套;</p>
+<blockquote>
+<p>这句话就是嵌套在段落里的语句；</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p><strong>日常工作</strong></p>
+<ul>
+<li>吃饭</li>
+<li>睡觉</li>
+<li>打豆豆</li>
+</ul>
+</blockquote>
+<p>无序列表</p>
+<ul>
+<li>昨天</li>
+</ul>
+<ul>
+<li>今天</li>
+</ul>
+<ul>
+<li>明天</li>
+</ul>
+<p>有序列表</p>
+<ol>
+<li>周一</li>
+<li>周二</li>
+<li>周三</li>
+</ol>
+<pre><code>public static void main(String[] args)&#123;
+    System.our.println(&quot;hello world&quot;);
+&#125;
+</code></pre>
+<hr>
+<h2 id="分隔符1"><a href="#分隔符1" class="headerlink" title="分隔符1"></a>分隔符1</h2><p>分隔符2</p>
+<hr>
+<p>分隔符3</p>
+<p><a href="www.yhray.com">我的博客</a></p>
+<ul>
+<li>一个*是斜体</li>
+<li><em>两个</em>是粗体**</li>
+<li><strong>加粗和倾斜</strong>*<br><del>两个~是删除线</del></li>
+</ul>
+<p>我是<code>英俊的</code>帅哥</p>
+]]></content>
+      <categories>
+        <category>感悟</category>
+      </categories>
+      <tags>
+        <tag>markdown</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>第一篇文章</title>
+    <url>/2021/07/21/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<p>第一篇文章不知道写些什么，就写哈哈哈哈吧</p>
+]]></content>
+      <categories>
+        <category>编程</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>第四篇文章</title>
+    <url>/2023/11/25/%E7%AC%AC%E5%9B%9B%E7%AF%87%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>重建二叉树</title>
+    <url>/2021/08/17/%E9%87%8D%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
+    <content><![CDATA[<blockquote>
+<p>话不多说，直接上题<br>输入某二叉树的前序遍历和中序遍历的结果，请重建出该二叉树。假设输入的前序遍历和<br>中序遍历的结果中不包含重复的数字。例如输入前序遍历{1,2,4,7,3,5,6,8}和中序遍历<br>序列{4,7,2,1,5,3,8,6},则重建二叉树并返回。</p>
+</blockquote>
+<span id="more"></span>
+<p>思路：<br>前序遍历的顺序是：根-左节点-右节点<br>中序遍历的顺序是：左节点-根-右节点</p>
+<p>根据规则，前序遍历第一个节点是根，所以中序遍历中{4,7,2}是左子树，1是根，{5,3,8,6}<br>是右子树。再根据前序遍历得知，2是根。所以{4,7,2}中的{4,7}都是左子树，再根据前序遍历<br>得知4是根，所以{7}是4的右子节点。以此推{5,3,8,6}。</p>
+<p>代码实现：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] preorder;</span><br><span class="line">    HashMap&lt;Integer, Integer&gt; dic = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">buildTree</span><span class="params">(<span class="keyword">int</span>[] preorder, <span class="keyword">int</span>[] inorder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.preorder = preorder;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; inorder.length; i++)</span><br><span class="line">            dic.put(inorder[i], i);</span><br><span class="line">        <span class="keyword">return</span> recur(<span class="number">0</span>, <span class="number">0</span>, inorder.length - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">TreeNode <span class="title">recur</span><span class="params">(<span class="keyword">int</span> root, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(left &gt; right) <span class="keyword">return</span> <span class="keyword">null</span>;                          <span class="comment">// 递归终止</span></span><br><span class="line">        TreeNode node = <span class="keyword">new</span> TreeNode(preorder[root]);          <span class="comment">// 建立根节点</span></span><br><span class="line">        <span class="keyword">int</span> i = dic.get(preorder[root]);                       <span class="comment">// 划分根节点、左子树、右子树</span></span><br><span class="line">        node.left = recur(root + <span class="number">1</span>, left, i - <span class="number">1</span>);              <span class="comment">// 开启左子树递归</span></span><br><span class="line">        node.right = recur(root + i - left + <span class="number">1</span>, i + <span class="number">1</span>, right); <span class="comment">// 开启右子树递归</span></span><br><span class="line">        <span class="keyword">return</span> node;                                           <span class="comment">// 回溯返回根节点</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Solution so = <span class="keyword">new</span> Solution();</span><br><span class="line">        <span class="keyword">int</span>[] preorder = &#123;<span class="number">3</span>,<span class="number">9</span>,<span class="number">20</span>,<span class="number">15</span>,<span class="number">7</span>&#125;;</span><br><span class="line">        <span class="keyword">int</span>[] inorder = &#123;<span class="number">9</span>,<span class="number">3</span>,<span class="number">15</span>,<span class="number">20</span>,<span class="number">7</span>&#125;;</span><br><span class="line">        so.buildTree(preorder,inorder);</span><br><span class="line">        System.out.println(<span class="string">&quot;so.buildTree(preorder,inorder);&quot;</span>+so.buildTree(preorder,inorder));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TreeNode</span> </span>&#123;</span><br><span class="line">     <span class="keyword">int</span> val;</span><br><span class="line">    TreeNode left;</span><br><span class="line">  TreeNode right;</span><br><span class="line">    TreeNode(<span class="keyword">int</span> x) &#123; val = x; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;TreeNode&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;val=&quot;</span> + val +</span><br><span class="line">                <span class="string">&quot;, left=&quot;</span> + left +</span><br><span class="line">                <span class="string">&quot;, right=&quot;</span> + right +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>剑指offer</category>
+      </categories>
+      <tags>
+        <tag>剑指offer</tag>
+      </tags>
+  </entry>
+</search>
