@@ -28,6 +28,32 @@
       </tags>
   </entry>
   <entry>
+    <title>交替打印</title>
+    <url>/2021/07/22/%E7%AC%AC%E4%B8%89%E7%AF%87%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<h1 id="交替打印数字和字母"><a href="#交替打印数字和字母" class="headerlink" title="交替打印数字和字母"></a>交替打印数字和字母</h1><blockquote>
+<p>两个线程交替打印数字和字母，例如1a2b3c4d。</p>
+</blockquote>
+<span id="more"></span>
+
+<blockquote>
+<p><strong>实现方式</strong></p>
+<ul>
+<li>synchronized提供的wait、notify</li>
+<li>lockSupport的park、unpark</li>
+<li>reentrantLock和condition</li>
+<li>基于cas机制实现线程交替打印</li>
+<li>transferQueue实现</li>
+</ul>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">每个condition内部有一个队列，c1队列里有t1，c2队列里有t2，线程使用await释放锁，使用signal唤醒锁。</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">char</span>[] nums = <span class="string">&quot;123456789&quot;</span>.toCharArray();</span><br><span class="line">        <span class="keyword">char</span>[] chars = <span class="string">&quot;abcdefghi&quot;</span>.toCharArray();</span><br><span class="line"></span><br><span class="line">        ReentrantLock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">        Condition c1 = lock.newCondition();</span><br><span class="line">        Condition c2 = lock.newCondition();</span><br><span class="line"></span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(()-&gt; &#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">char</span> temp : nums) &#123;</span><br><span class="line">                    System.out.print(temp);</span><br><span class="line">                    c2.signal();</span><br><span class="line">                    c1.await();</span><br><span class="line">                &#125;</span><br><span class="line">                c2.signal();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        Thread t2 = <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">char</span> temp : chars) &#123;</span><br><span class="line">                    System.out.print(temp);</span><br><span class="line">                    c1.signal();</span><br><span class="line">                    c2.await();</span><br><span class="line">                &#125;</span><br><span class="line">                c1.signal();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>编程</category>
+      </categories>
+      <tags>
+        <tag>Java，多线程，算法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>markdown语法</title>
     <url>/2021/07/21/%E7%AC%AC%E4%BA%8C%E7%AF%87%E6%96%87%E7%AB%A0/</url>
     <content><![CDATA[<h1 id="markdown语法"><a href="#markdown语法" class="headerlink" title="markdown语法"></a>markdown语法</h1><span id="more"></span>
@@ -86,32 +112,6 @@
       </tags>
   </entry>
   <entry>
-    <title>交替打印</title>
-    <url>/2021/07/22/%E7%AC%AC%E4%B8%89%E7%AF%87%E6%96%87%E7%AB%A0/</url>
-    <content><![CDATA[<h1 id="交替打印数字和字母"><a href="#交替打印数字和字母" class="headerlink" title="交替打印数字和字母"></a>交替打印数字和字母</h1><blockquote>
-<p>两个线程交替打印数字和字母，例如1a2b3c4d。</p>
-</blockquote>
-<span id="more"></span>
-
-<blockquote>
-<p><strong>实现方式</strong></p>
-<ul>
-<li>synchronized提供的wait、notify</li>
-<li>lockSupport的park、unpark</li>
-<li>reentrantLock和condition</li>
-<li>基于cas机制实现线程交替打印</li>
-<li>transferQueue实现</li>
-</ul>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">每个condition内部有一个队列，c1队列里有t1，c2队列里有t2，线程使用await释放锁，使用signal唤醒锁。</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">char</span>[] nums = <span class="string">&quot;123456789&quot;</span>.toCharArray();</span><br><span class="line">        <span class="keyword">char</span>[] chars = <span class="string">&quot;abcdefghi&quot;</span>.toCharArray();</span><br><span class="line"></span><br><span class="line">        ReentrantLock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">        Condition c1 = lock.newCondition();</span><br><span class="line">        Condition c2 = lock.newCondition();</span><br><span class="line"></span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(()-&gt; &#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">char</span> temp : nums) &#123;</span><br><span class="line">                    System.out.print(temp);</span><br><span class="line">                    c2.signal();</span><br><span class="line">                    c1.await();</span><br><span class="line">                &#125;</span><br><span class="line">                c2.signal();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        Thread t2 = <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">char</span> temp : chars) &#123;</span><br><span class="line">                    System.out.print(temp);</span><br><span class="line">                    c1.signal();</span><br><span class="line">                    c2.await();</span><br><span class="line">                &#125;</span><br><span class="line">                c1.signal();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>编程</category>
-      </categories>
-      <tags>
-        <tag>Java，多线程，算法</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>第一篇文章</title>
     <url>/2021/07/21/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</url>
     <content><![CDATA[<p>第一篇文章不知道写些什么，就写哈哈哈哈吧</p>
@@ -122,11 +122,6 @@
       <tags>
         <tag>Java</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>第四篇文章</title>
-    <url>/2023/11/25/%E7%AC%AC%E5%9B%9B%E7%AF%87%E6%96%87%E7%AB%A0/</url>
-    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>重建二叉树</title>
@@ -145,5 +140,10 @@
       <tags>
         <tag>剑指offer</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>第四篇文章</title>
+    <url>/2023/11/25/%E7%AC%AC%E5%9B%9B%E7%AF%87%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[]]></content>
   </entry>
 </search>
